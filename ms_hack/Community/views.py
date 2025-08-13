@@ -64,10 +64,12 @@ class PostDetailView(generics.RetrieveAPIView):
     lookup_url_kwarg = 'post_id'
 
 class PostDeleteView(generics.DestroyAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
 
 class PostUpdateView(generics.UpdateAPIView):
     queryset = Post.objects.all()

@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import Post, Comment
 
-
-
 class PostCreateSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(write_only=True, required=False)
     image_url = serializers.CharField(read_only=True)
