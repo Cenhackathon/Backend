@@ -38,14 +38,12 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',                  # djangorestframework
@@ -67,6 +65,7 @@ INSTALLED_APPS = [
     'mainpage',
     'Traffic',
     'Weather',
+
 ]
 
 MIDDLEWARE = [
