@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('community/', include('Community.urls')),  # Community 앱의 URL 포함
+    path('mainpage/', include('mainpage.urls')),  # mainpage 앱의 URL 포함
 ]
