@@ -4,10 +4,33 @@ from .models import WeatherCurrentInfo, WeatherFutureInfo
 class WeatherCurrentSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherCurrentInfo
-        fields = '__all__'
+        fields = [
+            "weather_id",
+            "location_name",
+            "latitude",
+            "longitude",
+            "temperature",
+            "humidity",
+            "wind_speed",
+            "uv_index",
+            "weather_condition",
+            "updated_at"
+        ]
 
 class WeatherFutureSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeatherFutureInfo
-        fields = '__all__'
+        fields = [
+            "weather_id",
+            "location_name",
+            "latitude",
+            "longitude",
+            "temperature",
+            "humidity",
+            "wind_speed",
+            "uv_index",
+            "weather_condition",
+            "time_set"
+        ]
+
 
