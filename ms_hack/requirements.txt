@@ -29,6 +29,7 @@ dj-rest-auth==7.0.1
 Django==5.2.5
 django-allauth==65.10.0
 django-cors-headers==4.7.0
+django-crontab==0.7.1
 django-environ==0.12.0
 django-storages==1.14.6
 djangorestframework==3.16.0

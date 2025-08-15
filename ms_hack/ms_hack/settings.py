@@ -56,6 +56,11 @@ INSTALLED_APPS = [
     'mainpage',
     'Traffic',
     'Weather',
+    'django_crontab',
+]
+
+CRONJOBS = [
+    ('0 * * * *', 'Weather.cron.update_weather_data')
 ]
 
 MIDDLEWARE = [
