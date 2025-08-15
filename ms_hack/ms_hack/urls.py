@@ -38,6 +38,8 @@ urlpatterns = [
     path('community/', include('Community.urls')),  # Community 앱의 URL 포함
     path('mainpage/', include('mainpage.urls')),  # mainpage 앱의 URL 포함
     path('weather/', include('Weather.urls')),  # Weather 앱의 URL 포함
+    path('api/auth/', include('dj_rest_auth.urls')),
+    path('api/auth/registration/', include('dj_rest_auth.registration.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
