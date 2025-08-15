@@ -2,8 +2,8 @@ from django.db import models
 
 class AlertLog(models.Model):
     alert_id = models.AutoField(primary_key=True)
-    location_name = models.CharField(max_length=100)
-    alert_type = models.CharField(max_length=50)
+    location_name = models.CharField(max_length=100, default="동대문구")
+    alert_type = models.CharField(max_length=50, null=True, blank=True)
     alert_message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -12,7 +12,7 @@ class AlertLog(models.Model):
 
 class WeatherCurrentInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
-    location_name = models.CharField(max_length=100)
+    location_name = models.CharField(max_length=100, default="동대문구")
     latitude = models.DecimalField(max_digits=10, decimal_places=6)
     longitude = models.DecimalField(max_digits=10, decimal_places=6)
     temperature = models.DecimalField(max_digits=4, decimal_places=1)
@@ -28,7 +28,7 @@ class WeatherCurrentInfo(models.Model):
 
 class WeatherFutureInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
-    location_name = models.CharField(max_length=100)
+    location_name = models.CharField(max_length=100, default="동대문구")
     latitude = models.DecimalField(max_digits=10, decimal_places=6)
     longitude = models.DecimalField(max_digits=10, decimal_places=6)
     temperature = models.DecimalField(max_digits=4, decimal_places=1)
