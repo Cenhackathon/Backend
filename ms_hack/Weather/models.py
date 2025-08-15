@@ -1,6 +1,14 @@
 from django.db import models
 
+class AlertLog(models.Model):
+    alert_id = models.AutoField(primary_key=True)
+    location_name = models.CharField(max_length=100)
+    alert_type = models.CharField(max_length=50)
+    alert_message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Alert {self.alert_id} - {self.location_name}"
 
 class WeatherCurrentInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
