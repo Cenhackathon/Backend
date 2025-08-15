@@ -19,7 +19,6 @@ def check_weather_alerts(user_id=1, location=DEFAULT_LOCATION):
         location_name=location,
         time_set__range=[now, one_week_later]
     )
-
     try:
         token = UserDeviceToken.objects.get(user_id=user_id).fcm_token
     except UserDeviceToken.DoesNotExist:
