@@ -59,6 +59,10 @@ INSTALLED_APPS = [
     'django_crontab',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_yasg.openapi.SchemaGenerator',
+}
+
 CRONJOBS = [
     ('0 * * * *', 'Weather.cron.update_weather_data')
 ]

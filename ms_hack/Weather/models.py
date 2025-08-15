@@ -1,5 +1,7 @@
 from django.db import models
 
+
+
 class WeatherCurrentInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
     location_name = models.CharField(max_length=100)
