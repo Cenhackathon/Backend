@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'Traffic',
     'Weather',
     'django_crontab',
+    'shelter',
 ]
 
 REST_FRAMEWORK = {
