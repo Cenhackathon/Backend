@@ -50,7 +50,8 @@ class WeatherUpdateView(APIView):
 class UserWeatherAlertView(APIView):
     def post(self, request):
         try:
-            check_weather_alerts()
+            user_id = request.user.id  # 로그인된 사용자 ID
+            check_weather_alerts(user_id=user_id)
             return Response({"message": "사용자 기반 위험 분석 및 알림 완료"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
