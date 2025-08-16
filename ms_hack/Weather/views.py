@@ -6,6 +6,7 @@ from .models import WeatherFutureInfo, WeatherCurrentInfo
 from .serializers import WeatherFutureSerializer, WeatherCurrentSerializer
 from .services.weather_api import fetch_weather_from_kma
 from .services.weather_alert import check_weather_alerts
+from .services.shelter_alert import check_shelter_weather_risks
 
 
 class WeatherUpdateView(generics.GenericAPIView):
@@ -31,7 +32,7 @@ class WeatherAlertTriggerView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         try:
             check_weather_alerts()
-            return Response({"message": "위험 요소 확인 및 알림 생성 완료"})
+            return Response({"message": "사용자 기반 위험 분석 및 알림 완료"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
