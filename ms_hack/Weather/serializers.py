@@ -32,5 +32,3 @@ class WeatherFutureSerializer(serializers.ModelSerializer):
             "weather_condition",
             "time_set"
         ]
-
-
