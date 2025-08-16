@@ -27,11 +27,22 @@ class CreateForecastWithOffsetView(generics.CreateAPIView):
         serializer.save(time_set=time_set)
 
 # 3. 날씨 정보 업데이트 (기상청 API 호출)
+from .services.weather_api import fetch_current_weather, fetch_forecast_weather
+
 class WeatherUpdateView(APIView):
     def post(self, request):
         try:
-            fetch_weather_from_kma()
-            return Response({"message": "날씨 정보가 업데이트되었습니다."})
+            lat = float(request.data.get("latitude", 37.5744))
+            lon = float(request.data.get("longitude", 127.0396))
+            location_name = request.data.get("location_name", "동대문구")
+
+            # 현재 날씨 저장
+            fetch_current_weather(lat, lon, location_name)
+
+            # 미래 예보 저장
+            fetch_forecast_weather(lat, lon, location_name)
+
+            return Response({"message": "현재 및 예보 날씨 정보가 업데이트되었습니다."})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
