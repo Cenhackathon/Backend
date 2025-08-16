@@ -2,15 +2,11 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime, timedelta
-from Weather.models import (
-    WeatherFutureInfo,
-    WeatherCurrentInfo,
-)
-from Weather.serializers import WeatherFutureSerializer
-from Weather.services.weather_api import fetch_weather_from_kma
-from Weather.services.weather_alert import check_weather_alerts
-from Weather.services.shelter_alert import check_shelter_weather_risks
-
+from .models import WeatherFutureInfo
+from .serializers import WeatherFutureSerializer
+from .services.weather_api import fetch_weather_from_kma
+from .services.weather_alert import check_weather_alerts
+from .services.shelter_alert import check_shelter_weather_risks
 
 # 1. 날씨 예보 리스트 조회 (GET)
 class WeatherForecastView(generics.ListAPIView):
@@ -56,33 +52,3 @@ class ShelterWeatherAlertView(APIView):
             return Response({"alerts": alerts})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-# 6. 사용자 위치 기반 현재 날씨 조회
-class NearbyWeatherView(APIView):
-    def get(self, request):
-        try:
-            user_lat = float(request.query_params.get("latitude"))
-            user_lon = float(request.query_params.get("longitude"))
-
-            all_weather = WeatherCurrentInfo.objects.all()
-            closest = None
-            min_distance = float("inf")
-
-            for w in all_weather:
-                dist = geodesic((user_lat, user_lon), (float(w.latitude), float(w.longitude))).km
-                if dist < min_distance:
-                    min_distance = dist
-                    closest = w
-
-            if closest:
-                return Response({
-                    "location_name": closest.location_name,
-                    "temperature": float(closest.temperature),
-                    "humidity": float(closest.humidity),
-                    "weather_condition": closest.weather_condition,
-                    "distance_km": round(min_distance, 2)
-                })
-            else:
-                return Response({"error": "날씨 정보가 없습니다."}, status=404)
-        except Exception as e:
-            return Response({"error": str(e)}, status=500)
