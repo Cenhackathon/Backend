@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 # Create your models here.
 
@@ -11,6 +12,7 @@ class Post(models.Model):
     ]
 
     post_id = models.AutoField(primary_key=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 작성자
     title = models.CharField(max_length=200)
     latitude = models.FloatField(blank=True, null=True)  # 위도
     longitude = models.FloatField(blank=True, null=True)  # 경도

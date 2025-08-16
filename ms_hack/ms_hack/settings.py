@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',                  # djangorestframework
     'rest_framework.authtoken',         # djangorestframework (optional, 권장)
     'rest_framework_simplejwt.token_blacklist',  # djangorestframework_simplejwt (optional, 권장)
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'allauth',                         # django-allauth
     'allauth.account',                 # django-allauth
     'allauth.socialaccount',           # django-allauth
+    
     'drf_yasg',                        # drf-yasg
     'corsheaders',
     # simple-jwt 관련
@@ -60,8 +62,16 @@ INSTALLED_APPS = [
     'shelter',
 ]
 
+
+
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_yasg.openapi.SchemaGenerator',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', # 토큰 인증을 추가합니다.
+        'rest_framework.authentication.SessionAuthentication', # DRF의 browsable API를 위해 유지합니다.
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 CRONJOBS = [
@@ -80,6 +90,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ms_hack.urls'
+
+SITE_ID = 1
+
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email", "username", "password", "password2"]
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=1025)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=False)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 TEMPLATES = [
     {
@@ -120,6 +142,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
 
 
 # Password validation
