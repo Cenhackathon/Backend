@@ -1,5 +1,6 @@
 from django.db import models
 
+# 경고 알림 모델
 class AlertLog(models.Model):
     alert_id = models.AutoField(primary_key=True)
     location_name = models.CharField(max_length=100, default="동대문구")
@@ -10,6 +11,7 @@ class AlertLog(models.Model):
     def __str__(self):
         return f"Alert {self.alert_id} - {self.location_name}"
 
+# 현재 날씨
 class WeatherCurrentInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
     location_name = models.CharField(max_length=100, default="동대문구")
@@ -25,7 +27,7 @@ class WeatherCurrentInfo(models.Model):
     def __str__(self):
         return f"{self.location_name} - {self.weather_condition}"
 
-
+# 미래 날씨
 class WeatherFutureInfo(models.Model):
     weather_id = models.AutoField(primary_key=True)
     location_name = models.CharField(max_length=100, default="동대문구")

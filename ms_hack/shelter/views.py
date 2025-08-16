@@ -21,7 +21,7 @@ class UploadShelterCSVView(View):
                     'name': row['쉼터명칭'],
                     'road_address': row['도로명주소'],
                     'lot_address': row['지번주소'],
-                    'area': float(row['시설면저그']),
+                    'area': float(row['시설면적']),
                     'capacity': int(row['이용가능 인구']),
                     'note': row['비고'],
                     'longitude': float(row['경도']),
