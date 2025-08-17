@@ -31,3 +31,4 @@ class WeatherFutureSerializer(serializers.ModelSerializer):
             "uv_index",
             "weather_condition",
             "time_set"
+        ]
