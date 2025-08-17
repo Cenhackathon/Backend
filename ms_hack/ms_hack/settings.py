@@ -14,12 +14,9 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
-from dotenv import load_dotenv
 
-load_dotenv()  # .env 파일 로드
-
-KMA_API_KEY = os.getenv("KMA_API_KEY")
-GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+KMA_API_KEY = config("KMA_API_KEY")
+GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -66,9 +63,9 @@ INSTALLED_APPS = [
     'Weather',
     'django_crontab',
     'shelter',
+    'google',
     'google-auth',
     'google-auth-oauthlib',
-
 ]
 
 

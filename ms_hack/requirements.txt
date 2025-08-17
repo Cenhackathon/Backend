@@ -13,6 +13,7 @@ bleach==6.2.0
 boto3==1.40.1
 botocore==1.40.1
 bs4==0.0.2
+cachetools==5.5.2
 certifi==2025.7.9
 cffi==1.17.1
 charset-normalizer==3.4.2
@@ -27,7 +28,7 @@ defusedxml==0.7.1
 distro==1.9.0
 dj-rest-auth==7.0.1
 Django==5.2.5
-django-allauth==65.10.0
+django-allauth==0.61.1
 django-cors-headers==4.7.0
 django-crontab==0.7.1
 django-environ==0.12.0
@@ -40,9 +41,17 @@ executing==2.2.0
 fastjsonschema==2.21.1
 fonttools==4.58.2
 fqdn==1.5.1
+google==3.0.0
+google-api-core==2.25.1
+google-api-python-client==2.179.0
+google-auth==2.40.3
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.2
+googleapis-common-protos==1.70.0
 gunicorn==23.0.0
 h11==0.16.0
 httpcore==1.0.9
+httplib2==0.22.0
 httpx==0.28.1
 idna==3.10
 inflection==0.5.1
@@ -97,8 +106,12 @@ pillow==11.2.1
 platformdirs==4.3.8
 prometheus_client==0.22.1
 prompt_toolkit==3.0.51
+proto-plus==1.26.1
+protobuf==6.32.0
 psutil==7.0.0
 pure_eval==0.2.3
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
 pycparser==2.22
 pydantic==2.11.7
 pydantic_core==2.33.2
@@ -123,6 +136,7 @@ requests-oauthlib==2.0.0
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rpds-py==0.25.1
+rsa==4.9.1
 s3transfer==0.13.1
 selenium==4.33.0
 Send2Trash==1.8.3
@@ -154,5 +168,3 @@ webencodings==0.5.1
 websocket-client==1.8.0
 websockets==15.0.1
 wsproto==1.2.0
-google-auth
-google-auth-oauthlib
