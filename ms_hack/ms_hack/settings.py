@@ -66,6 +66,10 @@ INSTALLED_APPS = [
     'Weather',
     'django_crontab',
     'shelter',
+    'python-dotenv',
+    'google-auth',
+    'google-auth-oauthlib',
+
 ]
 
 
