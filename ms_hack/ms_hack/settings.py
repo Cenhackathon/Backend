@@ -14,10 +14,6 @@ from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
-import dotenv
-from dotenv import load_dotenv
-
-load_dotenv()  # .env 파일 로드
 
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
@@ -69,7 +65,6 @@ INSTALLED_APPS = [
     'shelter',
     'google-auth',
     'google-auth-oauthlib',
-
 ]
 
 

@@ -2,12 +2,8 @@ import os
 import requests
 import logging
 from django.conf import settings
-from dotenv import load_dotenv
 from google.oauth2 import service_account
 from google.auth.transport.requests import Request
-
-# .env 로딩
-load_dotenv()
 
 # 로깅 설정
 logger = logging.getLogger(__name__)
