@@ -1,6 +1,6 @@
 from shelter.models import HeatShelter
 from Weather.models import WeatherFutureInfo, UserDeviceToken, AlertLog
-from services.fcm_helper import send_push_notification
+from .fcm_helper import send_push_notification
 import logging
 from datetime import datetime
 

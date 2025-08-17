@@ -64,8 +64,6 @@ INSTALLED_APPS = [
     'django_crontab',
     'shelter',
     'google',
-    'google-auth',
-    'google-auth-oauthlib',
 ]
 
 
@@ -100,7 +98,7 @@ ROOT_URLCONF = 'ms_hack.urls'
 SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS = {"username", "email"}
-ACCOUNT_SIGNUP_FIELDS = ["email", "username", "password", "password2"]
+ACCOUNT_SIGNUP_FIELDS = ["username", "email*", "password1", "password2"]
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', cast=int, default=1025)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=False)
