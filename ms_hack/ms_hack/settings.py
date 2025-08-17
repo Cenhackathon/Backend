@@ -18,6 +18,11 @@ import os
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
+# 최대 업로드 크기 (예: 50MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = None  # 무제한
+FILE_UPLOAD_MAX_MEMORY_SIZE = None
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 

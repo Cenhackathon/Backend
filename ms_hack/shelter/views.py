@@ -25,14 +25,19 @@ class UploadShelterCSVView(View):
             return JsonResponse({'error': '파일이 업로드되지 않았습니다.'}, status=400)
 
         # 인코딩 처리
+        import io  # 파일 상단에 추가
+
         for enc in ['cp949', 'euc-kr', 'utf-8']:
             try:
-                decoded_file = csv_file.read().decode(enc).splitlines()
+                csv_file.seek(0)  # 파일 포인터 초기화
+                decoded_file = io.TextIOWrapper(csv_file, encoding=enc)
+                reader = csv.DictReader(decoded_file)
                 break
             except UnicodeDecodeError:
                 continue
         else:
             return JsonResponse({'error': '파일 인코딩 오류'}, status=400)
+
 
         reader = csv.DictReader(decoded_file)    
         # 트랜잭션으로 묶어서 SQLite 잠금 방지
