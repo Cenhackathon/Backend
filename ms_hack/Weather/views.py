@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from datetime import datetime, timedelta
 from .models import WeatherFutureInfo
 from .serializers import WeatherFutureSerializer
-from .services.weather_api import fetch_weather_from_kma
+from .services.weather_api import fetch_current_weather, fetch_forecast_weather
 from .services.weather_alert import check_weather_alerts
 from .services.shelter_alert import check_shelter_weather_risks
 
