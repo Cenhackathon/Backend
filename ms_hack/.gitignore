@@ -113,10 +113,8 @@ yarn.lock
 .env
 .env.*
 
-
 # .gitignore
 myvenv/
 __pycache__/
 *.pyc
 *.log
-.env
