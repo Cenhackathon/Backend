@@ -55,14 +55,22 @@ class PostUploadView(generics.CreateAPIView):
 
 
 class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostListSerializer
+    def get_queryset(self):
+        order_by = self.kwargs.get('order_by', 'created_at')
+        category = self.kwargs.get('category')
+        queryset = Post.objects.all()
+
+        if category:
+            queryset = queryset.filter(category=category)
+        return queryset.order_by(f'-{order_by}')
 
 class PostDetailView(generics.RetrieveAPIView):
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
+
 
 class PostDeleteView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]

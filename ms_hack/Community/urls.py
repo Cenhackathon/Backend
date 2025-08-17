@@ -3,7 +3,8 @@ from .views import *
 
 urlpatterns = [
     path('upload/', PostUploadView.as_view(), name='post-upload'),
-    path('list/', PostListView.as_view(), name='post-list'),
+    path('list/<str:order_by>/', PostListView.as_view(), name='post-list-order'),
+    path('list/<str:order_by>/<str:category>/', PostListView.as_view(), name='post-list'),
     path('<int:post_id>/', PostDetailView.as_view(), name='post-detail'),
     path('<int:post_id>/delete/', PostDeleteView.as_view(), name='post-delete'),
     path('<int:post_id>/update/', PostUpdateView.as_view(), name='post-update'),
