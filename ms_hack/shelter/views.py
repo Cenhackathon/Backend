@@ -42,7 +42,7 @@ class UploadShelterCSVView(View):
                 row = {k.strip(): v for k, v in row.items()}
 
                 HeatShelter.objects.update_or_create(
-                    index=int(row.get('시설코드', 0)),
+                    index=safe_int(row.get('시설코드', 0)),
                     defaults={
                         'category1': row.get('시설구분1', ''),
                         'category2': row.get('시설구분2', ''),
@@ -58,6 +58,7 @@ class UploadShelterCSVView(View):
                         'y_coord': safe_float(row.get('Y좌표', '0')),
                     }
                 )
+                print(f"쉼터 {row.get('쉼터명칭', '')} 정보 저장 완료")
 
         return JsonResponse({'message': '쉼터 정보가 저장되었습니다.'})
 
