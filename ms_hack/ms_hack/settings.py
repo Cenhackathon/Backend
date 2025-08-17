@@ -9,45 +9,38 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
 from pathlib import Path
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
 import os
-import environ
+
+KMA_API_KEY = config("KMA_API_KEY")
+GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-env = environ.Env(
-    # set casting, default value
-    DEBUG=(bool, False)
-)
-# 읽어올 파일 경로 설정
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
+    'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',                  # djangorestframework
     'rest_framework.authtoken',         # djangorestframework (optional, 권장)
     'rest_framework_simplejwt.token_blacklist',  # djangorestframework_simplejwt (optional, 권장)
@@ -56,6 +49,7 @@ INSTALLED_APPS = [
     'allauth',                         # django-allauth
     'allauth.account',                 # django-allauth
     'allauth.socialaccount',           # django-allauth
+    
     'drf_yasg',                        # drf-yasg
     'corsheaders',
     # simple-jwt 관련
@@ -67,6 +61,27 @@ INSTALLED_APPS = [
     'mainpage',
     'Traffic',
     'Weather',
+    'django_crontab',
+    'shelter',
+    'google',
+    'google-auth',
+    'google-auth-oauthlib',
+]
+
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication', # 토큰 인증을 추가합니다.
+        'rest_framework.authentication.SessionAuthentication', # DRF의 browsable API를 위해 유지합니다.
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+CRONJOBS = [
+    ('0 * * * *', 'Weather.cron.update_weather_data')
 ]
 
 MIDDLEWARE = [
@@ -81,6 +96,18 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'ms_hack.urls'
+
+SITE_ID = 1
+
+ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_SIGNUP_FIELDS = ["email", "username", "password", "password2"]
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', cast=int, default=1025)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=False)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 
 TEMPLATES = [
     {
@@ -121,6 +148,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 }
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
 
 
 # Password validation

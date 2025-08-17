@@ -15,6 +15,7 @@ from .models import Post
 # Create your views here.
 
 class PostUploadView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()
     serializer_class = PostCreateSerializer
 
@@ -54,8 +55,15 @@ class PostUploadView(generics.CreateAPIView):
 
 
 class PostListView(generics.ListAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostListSerializer
+    def get_queryset(self):
+        order_by = self.kwargs.get('order_by', 'created_at')
+        category = self.kwargs.get('category')
+        queryset = Post.objects.all()
+
+        if category:
+            queryset = queryset.filter(category=category)
+        return queryset.order_by(f'-{order_by}')
 
 class PostDetailView(generics.RetrieveAPIView):
     queryset = Post.objects.all()
@@ -63,19 +71,25 @@ class PostDetailView(generics.RetrieveAPIView):
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
 
+
 class PostDeleteView(generics.DestroyAPIView):
-    queryset = Post.objects.all()
+    permission_classes = [IsAuthenticated]
     serializer_class = PostDetailSerializer
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
 
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+
 class PostUpdateView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
 
 class CommentCreateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Comment.objects.all()
     serializer_class = CommentCreateSerializer
 
@@ -85,6 +99,7 @@ class CommentCreateView(generics.CreateAPIView):
         serializer.save(post=post)
 
 class LikeIncrementView(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request, post_id):
         post = get_object_or_404(Post, post_id=post_id)
         post.likes = (post.likes or 0) + 1  # likes 필드 값이 None이면 0부터 시작
