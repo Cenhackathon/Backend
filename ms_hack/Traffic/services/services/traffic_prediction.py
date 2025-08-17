@@ -10,3 +10,4 @@ def predict_congestion(road_name, current_level):
         return "high"
     else:
         return "medium"
+
