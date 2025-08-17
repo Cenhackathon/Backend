@@ -3,6 +3,9 @@ import csv
 from django.http import JsonResponse
 from django.views import View
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 from shelter.models import HeatShelter
 from .serializers import HeatShelterSerializer
 
@@ -18,18 +21,17 @@ def safe_int(s):
     except:
         return 0
 
+@method_decorator(csrf_exempt, name='dispatch')
 class UploadShelterCSVView(View):
     def post(self, request):
         csv_file = request.FILES.get('file')
         if not csv_file:
             return JsonResponse({'error': '파일이 업로드되지 않았습니다.'}, status=400)
 
-        # 인코딩 처리
-        import io  # 파일 상단에 추가
-
+        import io
         for enc in ['cp949', 'euc-kr', 'utf-8']:
             try:
-                csv_file.seek(0)  # 파일 포인터 초기화
+                csv_file.seek(0)
                 decoded_file = io.TextIOWrapper(csv_file, encoding=enc)
                 reader = csv.DictReader(decoded_file)
                 break
@@ -38,12 +40,9 @@ class UploadShelterCSVView(View):
         else:
             return JsonResponse({'error': '파일 인코딩 오류'}, status=400)
 
-
-        reader = csv.DictReader(decoded_file)    
-        # 트랜잭션으로 묶어서 SQLite 잠금 방지
+        reader = csv.DictReader(decoded_file)
         with transaction.atomic():
             for row in reader:
-                # 컬럼명 공백 제거
                 row = {k.strip(): v for k, v in row.items()}
 
                 HeatShelter.objects.update_or_create(
