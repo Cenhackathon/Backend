@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     WeatherUpdateView,
     WeatherForecastView,
+    #WeatherAlertTriggerView,
     CreateForecastWithOffsetView,
     UserWeatherAlertView,
     ShelterWeatherAlertView,
