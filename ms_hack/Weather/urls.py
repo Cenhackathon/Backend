@@ -4,7 +4,7 @@ from .views import (
     WeatherForecastView,
     CreateForecastWithOffsetView,
     UserWeatherAlertView,
-    ShelterWeatherAlertView
+    ShelterWeatherAlertView,
 )
 
 urlpatterns = [

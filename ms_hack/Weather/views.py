@@ -2,7 +2,6 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime, timedelta
-
 from .models import WeatherFutureInfo
 from .serializers import WeatherFutureSerializer
 from .services.weather_api import fetch_weather_from_kma
@@ -28,11 +27,22 @@ class CreateForecastWithOffsetView(generics.CreateAPIView):
         serializer.save(time_set=time_set)
 
 # 3. 날씨 정보 업데이트 (기상청 API 호출)
+from .services.weather_api import fetch_current_weather, fetch_forecast_weather
+
 class WeatherUpdateView(APIView):
     def post(self, request):
         try:
-            fetch_weather_from_kma()
-            return Response({"message": "날씨 정보가 업데이트되었습니다."})
+            lat = float(request.data.get("latitude", 37.5744))
+            lon = float(request.data.get("longitude", 127.0396))
+            location_name = request.data.get("location_name", "동대문구")
+
+            # 현재 날씨 저장
+            fetch_current_weather(lat, lon, location_name)
+
+            # 미래 예보 저장
+            fetch_forecast_weather(lat, lon, location_name)
+
+            return Response({"message": "현재 및 예보 날씨 정보가 업데이트되었습니다."})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -40,7 +50,8 @@ class WeatherUpdateView(APIView):
 class UserWeatherAlertView(APIView):
     def post(self, request):
         try:
-            check_weather_alerts()
+            user_id = request.user.id  # 로그인된 사용자 ID
+            check_weather_alerts(user_id=user_id)
             return Response({"message": "사용자 기반 위험 분석 및 알림 완료"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

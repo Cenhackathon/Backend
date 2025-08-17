@@ -34,8 +34,7 @@ class UploadShelterCSVView(View):
         else:
             return JsonResponse({'error': '파일 인코딩 오류'}, status=400)
 
-        reader = csv.DictReader(decoded_file)
-        
+        reader = csv.DictReader(decoded_file)    
         # 트랜잭션으로 묶어서 SQLite 잠금 방지
         with transaction.atomic():
             for row in reader:

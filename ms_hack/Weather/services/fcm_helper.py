@@ -2,36 +2,52 @@ import os
 import requests
 import logging
 from django.conf import settings
+from dotenv import load_dotenv
+from google.oauth2 import service_account
+from google.auth.transport.requests import Request
+
+# .env 로딩
+load_dotenv()
 
 # 로깅 설정
 logger = logging.getLogger(__name__)
 
-# FCM 서버 URL
-FCM_URL = "https://fcm.googleapis.com/fcm/send"
+# FCM v1 URL
+FCM_V1_URL = f"https://fcm.googleapis.com/v1/projects/{os.getenv('FIREBASE_PROJECT_ID')}/messages:send"
+
+def get_access_token():
+    """OAuth2 인증 토큰 생성"""
+    credentials = service_account.Credentials.from_service_account_file(
+        os.getenv("GOOGLE_APPLICATION_CREDENTIALS"),
+        scopes=["https://www.googleapis.com/auth/firebase.messaging"]
+    )
+    credentials.refresh(Request())
+    return credentials.token
 
 def send_push_notification(token, title, body):
-    """FCM 푸시 알림 전송 함수"""
-    server_key = os.getenv("FCM_SERVER_KEY", settings.FCM_SERVER_KEY)
-    if not server_key:
-        logger.error("[FCM 오류] 서버 키가 설정되지 않았습니다.")
-        return None, {"error": "Missing FCM server key"}
+    """FCM v1 푸시 알림 전송 함수"""
+    access_token = get_access_token()
+    if not access_token:
+        logger.error("[FCM 오류] 액세스 토큰 생성 실패")
+        return None, {"error": "Failed to get access token"}
 
     headers = {
-        "Authorization": f"key={server_key}",
-        "Content-Type": "application/json"
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json; UTF-8"
     }
 
     payload = {
-        "to": token,
-        "notification": {
-            "title": title,
-            "body": body
-        },
-        "priority": "high"
+        "message": {
+            "token": token,
+            "notification": {
+                "title": title,
+                "body": body
+            }
+        }
     }
 
     try:
-        response = requests.post(FCM_URL, json=payload, headers=headers)
+        response = requests.post(FCM_V1_URL, json=payload, headers=headers)
         response.raise_for_status()
         return response.status_code, response.json()
     except requests.RequestException as e:
