@@ -89,3 +89,8 @@ def send_push_notification(token, title, body, use_v1=True):
         return send_push_v1(token, title, body)
     else:
         return send_push_legacy(token, title, body)
+        response.raise_for_status()
+        return response.status_code, response.json()
+    except requests.RequestException as e:
+        logger.error(f"[FCM 전송 오류] {e}")
+        return None, {"error": str(e)}
