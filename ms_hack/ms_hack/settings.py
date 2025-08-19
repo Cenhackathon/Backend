@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'Weather',
     'django_crontab',
     'shelter',
+    'google',
 ]
 
 

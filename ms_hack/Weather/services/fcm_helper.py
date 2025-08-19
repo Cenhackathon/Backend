@@ -52,5 +52,45 @@ def send_push_notification(token, title, body):
         response.raise_for_status()
         return response.status_code, response.json()
     except requests.RequestException as e:
+        logger.error(f"[FCM v1 전송 오류] {e}")
+        return None, {"error": str(e)}
+
+# ✅ Legacy 방식 푸시 전송
+def send_push_legacy(token, title, body):
+    server_key = os.getenv("FCM_SERVER_KEY", settings.FCM_SERVER_KEY)
+    if not server_key:
+        return None, {"error": "서버 키 누락"}
+
+    headers = {
+        "Authorization": f"key={server_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "to": token,
+        "notification": {
+            "title": title,
+            "body": body
+        },
+        "priority": "high"
+    }
+
+    try:
+        response = requests.post(FCM_LEGACY_URL, json=payload, headers=headers)
+        response.raise_for_status()
+        return response.status_code, response.json()
+    except requests.RequestException as e:
         logger.error(f"[FCM Legacy 전송 오류] {e}")
+        return None, {"error": str(e)}
+    
+def send_push_notification(token, title, body, use_v1=True):
+    """통합 푸시 알림 함수: 기본은 v1 방식"""
+    if use_v1:
+        return send_push_v1(token, title, body)
+    else:
+        return send_push_legacy(token, title, body)
+        response.raise_for_status()
+        return response.status_code, response.json()
+    except requests.RequestException as e:
+        logger.error(f"[FCM 전송 오류] {e}")
         return None, {"error": str(e)}

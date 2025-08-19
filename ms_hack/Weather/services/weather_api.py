@@ -160,7 +160,6 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
                 "rainfall": values.get("RN1"),
             }
         )
-    return True
 
 # ✅ 전체 업데이트 함수
 def update_weather_data():
@@ -170,4 +169,3 @@ def update_weather_data():
     current_result = fetch_current_weather(lat, lon, location_name)
     forecast_result = fetch_forecast_weather(lat, lon, location_name)
     logger.info("[날씨 업데이트] 완료")
-    return current_result, forecast_result
