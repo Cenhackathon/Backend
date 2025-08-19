@@ -109,12 +109,9 @@ yarn.lock
 *.pfx
 *.p12
 
-
 # .gitignore
 myvenv/
 __pycache__/
 *.pyc
 *.log
 .env
-=======
-.env.*

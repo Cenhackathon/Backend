@@ -168,3 +168,5 @@ webencodings==0.5.1
 websocket-client==1.8.0
 websockets==15.0.1
 wsproto==1.2.0
+google-auth==2.40.3
+google-auth-oauthlib==1.2.2

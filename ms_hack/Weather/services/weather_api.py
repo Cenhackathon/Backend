@@ -27,7 +27,7 @@ def deg_to_dir(deg):
     closest = min(DEG_CODE.keys(), key=lambda x: abs(x - deg))
     return DEG_CODE[closest]
 
-# ✅ 1. 현재 날씨 (초단기예보)
+# ✅ 현재 날씨 (초단기예보)
 def fetch_current_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
     base_time = (datetime.now() - timedelta(hours=1)).strftime("%H00")
@@ -83,7 +83,7 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
         }
     )
 
-# ✅ 2. 미래 날씨 (단기예보)
+# ✅ 미래 날씨 (단기예보)
 def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
     base_date = datetime.now().strftime("%Y%m%d")
@@ -111,14 +111,14 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
         logger.error(f"[기상청 단기예보 오류] {e}")
         return
 
-    parsed = {}
+    forecast_data = {}
     for item in items:
         key = f"{item['fcstDate']}_{item['fcstTime']}"
-        if key not in parsed:
-            parsed[key] = {}
-        parsed[key][item["category"]] = item["fcstValue"]
+        if key not in forecast_data:
+            forecast_data[key] = {}
+        forecast_data[key][item["category"]] = item["fcstValue"]
 
-    for key, values in parsed.items():
+    for key, values in forecast_data.items():
         fcst_date, fcst_time = key.split("_")
         WeatherFutureInfo.objects.update_or_create(
             fcst_date=fcst_date,
@@ -129,10 +129,19 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
                 "longitude": lon,
                 "temperature": values.get("TMP"),
                 "humidity": values.get("REH"),
-                "sky": values.get("SKY"),
-                "precipitation_type": values.get("PTY"),
+                "sky": SKY_CODE.get(values.get("SKY", "1")),
+                "precipitation_type": PTY_CODE.get(values.get("PTY", "0")),
                 "wind_speed": values.get("WSD"),
-                "wind_direction": values.get("VEC"),
+                "wind_direction": deg_to_dir(float(values.get("VEC", 0))),
                 "rainfall": values.get("RN1"),
             }
         )
+
+# ✅ 전체 업데이트 함수
+def update_weather_data():
+    lat, lon = 37.5744, 127.0396
+    location_name = "동대문구"
+    logger.info("[날씨 업데이트] 시작")
+    fetch_current_weather(lat, lon, location_name)
+    fetch_forecast_weather(lat, lon, location_name)
+    logger.info("[날씨 업데이트] 완료")

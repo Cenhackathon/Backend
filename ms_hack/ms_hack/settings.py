@@ -18,6 +18,11 @@ import os
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
+# 최대 업로드 크기 (예: 50MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = None  # 무제한
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -63,6 +68,7 @@ INSTALLED_APPS = [
     'Weather',
     'django_crontab',
     'shelter',
+    'google',
 ]
 
 
@@ -97,7 +103,7 @@ ROOT_URLCONF = 'ms_hack.urls'
 SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS = {"username", "email"}
-ACCOUNT_SIGNUP_FIELDS = ["email", "username", "password", "password2"]
+ACCOUNT_SIGNUP_FIELDS = ["username", "email*", "password1", "password2"]
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_PORT = config('EMAIL_PORT', cast=int, default=1025)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool, default=False)

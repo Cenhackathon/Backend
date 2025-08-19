@@ -64,3 +64,18 @@ class ShelterWeatherAlertView(APIView):
             return Response({"alerts": alerts})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+# 6. 날씨 알림 트리거용 테스트 뷰
+class WeatherAlertTriggerView(APIView):
+    def post(self, request):
+        try:
+            user_id = request.user.id
+            check_weather_alerts(user_id=user_id)
+            alerts = check_shelter_weather_risks()
+            return Response({
+                "message": "알림 트리거 완료",
+                "user_alert": "사용자 위험 분석 완료",
+                "shelter_alerts": alerts
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

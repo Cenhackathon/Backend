@@ -6,6 +6,8 @@ from .views import (
     CreateForecastWithOffsetView,
     UserWeatherAlertView,
     ShelterWeatherAlertView,
+    WeatherAlertTriggerView,
+    CreateForecastWithOffsetView,
 )
 
 urlpatterns = [
@@ -16,9 +18,17 @@ urlpatterns = [
     path("alert/shelter/", ShelterWeatherAlertView.as_view(), name="shelter-weather-alert") # 쉼터 기반 위험 분석
 ]
 
+
 urlpatterns = [
+    path('forecast/', WeatherForecastView.as_view()),
+    path('forecast/create/', CreateForecastWithOffsetView.as_view()),
+    path('update/', WeatherUpdateView.as_view()),
+    path('alert/user/', UserWeatherAlertView.as_view()),
+    path('alert/shelter/', ShelterWeatherAlertView.as_view()),
+    path('alert/trigger/', WeatherAlertTriggerView.as_view()),  # ✅ 연결 완료
     path("weather/update/", WeatherUpdateView.as_view(), name="weather-update"),
     path("weather/forecast/", WeatherForecastView.as_view(), name="weather-forecast"),
     #path("weather/alert/", WeatherAlertTriggerView.as_view(), name="weather-alert"),
     path("weather/forecast/create/", CreateForecastWithOffsetView.as_view(), name="create-forecast-offset"),
 ]
+
