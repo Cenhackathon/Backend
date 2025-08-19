@@ -1,10 +1,10 @@
-import os
 import requests
 import logging
 from datetime import datetime, timedelta
 from django.conf import settings
 from ..models import WeatherCurrentInfo, WeatherFutureInfo
-from ..utils.grid_converter import convert_to_grid  # 위도/경도 → 격자 변환
+from ..utils.grid_converter import convert_to_grid
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -24,40 +24,60 @@ DEG_CODE = {
 }
 
 def deg_to_dir(deg):
+    deg = deg % 360
     closest = min(DEG_CODE.keys(), key=lambda x: abs(x - deg))
     return DEG_CODE[closest]
 
-# ✅ 현재 날씨 (초단기예보)
+# 발표 시각 계산
+def get_latest_base_time_for_ultra():
+    now = datetime.now()
+    base_time = (now - timedelta(hours=1)).strftime("%H00")
+    base_date = now.strftime("%Y%m%d")
+    return base_date, base_time
+
+def get_latest_base_time_for_vilage():
+    now = datetime.now()
+    base_times = [2, 5, 8, 11, 14, 17, 20, 23]
+    hour = now.hour
+    base_hour = max([t for t in base_times if t <= hour], default=23)
+    base_date = now.strftime("%Y%m%d")
+    if hour < 2:
+        base_date = (now - timedelta(days=1)).strftime("%Y%m%d")
+        base_hour = 23
+    return base_date, f"{base_hour:02}00"
+
+# ✅ 초단기예보
 def fetch_current_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
-    base_time = (datetime.now() - timedelta(hours=1)).strftime("%H00")
-    base_date = datetime.now().strftime("%Y%m%d")
+    if ny == 127: ny = 126
+    base_date, base_time = get_latest_base_time_for_ultra()
 
+    url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst"
     params = {
-        "serviceKey": os.getenv("KMA_API_KEY", settings.KMA_API_KEY),
+        "serviceKey": settings.KMA_API_KEY,
+        "dataType": "JSON",
         "numOfRows": "60",
         "pageNo": "1",
-        "dataType": "JSON",
         "base_date": base_date,
         "base_time": base_time,
         "nx": nx,
         "ny": ny
     }
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
 
     try:
-        response = requests.get(
-            "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst",
-            params=params, verify=False
-        )
+        response = requests.get(url, params=params, headers=headers, verify=True, timeout=10)
         response.raise_for_status()
         items = response.json()['response']['body']['items']['item']
     except Exception as e:
         logger.error(f"[기상청 초단기예보 오류] {e}")
-        return
+        return False
 
-    now = datetime.now()
-    target_time = None
+    now = timezone.localtime()
     target_data = {}
+    target_time = None
 
     for item in items:
         fcst_datetime = datetime.strptime(item['fcstDate'] + item['fcstTime'], "%Y%m%d%H%M")
@@ -65,9 +85,9 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
             target_time = fcst_datetime
             target_data[item['category']] = item['fcstValue']
 
-    if not target_time:
+    if not target_time or not target_data:
         logger.warning("[기상청] 현재 시각에 해당하는 예보 데이터 없음")
-        return
+        return False
 
     WeatherCurrentInfo.objects.update_or_create(
         location_name=location_name,
@@ -78,45 +98,49 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
             "temperature": float(target_data.get("T1H", 0)),
             "humidity": float(target_data.get("REH", 0)),
             "wind_speed": float(target_data.get("WSD", 0)),
-            "uv_index": 0.0,
+            "uv_index": float(target_data.get("UV", 0.0)),
             "weather_condition": PTY_CODE.get(target_data.get("PTY", "0"), "맑음"),
         }
     )
+    return True
 
-# ✅ 미래 날씨 (단기예보)
+# ✅ 단기예보
 def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
-    base_date = datetime.now().strftime("%Y%m%d")
-    base_time = "0500"
+    if ny == 127: ny = 126
+    base_date, base_time = get_latest_base_time_for_vilage()
 
+    url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
     params = {
-        "serviceKey": os.getenv("KMA_API_KEY", settings.KMA_API_KEY),
+        "serviceKey": settings.KMA_API_KEY,
+        "dataType": "JSON",
         "numOfRows": "1000",
         "pageNo": "1",
-        "dataType": "JSON",
         "base_date": base_date,
         "base_time": base_time,
         "nx": nx,
-        "ny": ny,
+        "ny": ny
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0"
     }
 
     try:
-        response = requests.get(
-            "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst",
-            params=params
-        )
+        response = requests.get(url, params=params, headers=headers, verify=True, timeout=10)
         response.raise_for_status()
         items = response.json()["response"]["body"]["items"]["item"]
     except Exception as e:
         logger.error(f"[기상청 단기예보 오류] {e}")
-        return
+        return False
 
     forecast_data = {}
     for item in items:
         key = f"{item['fcstDate']}_{item['fcstTime']}"
-        if key not in forecast_data:
-            forecast_data[key] = {}
-        forecast_data[key][item["category"]] = item["fcstValue"]
+        forecast_data.setdefault(key, {})[item["category"]] = item["fcstValue"]
+
+    if not forecast_data:
+        logger.warning("[기상청] 단기예보 데이터 없음")
+        return False
 
     for key, values in forecast_data.items():
         fcst_date, fcst_time = key.split("_")
@@ -136,12 +160,14 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
                 "rainfall": values.get("RN1"),
             }
         )
+    return True
 
 # ✅ 전체 업데이트 함수
 def update_weather_data():
     lat, lon = 37.5744, 127.0396
     location_name = "동대문구"
     logger.info("[날씨 업데이트] 시작")
-    fetch_current_weather(lat, lon, location_name)
-    fetch_forecast_weather(lat, lon, location_name)
+    current_result = fetch_current_weather(lat, lon, location_name)
+    forecast_result = fetch_forecast_weather(lat, lon, location_name)
     logger.info("[날씨 업데이트] 완료")
+    return current_result, forecast_result

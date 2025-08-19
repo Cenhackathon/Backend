@@ -27,7 +27,7 @@ def get_access_token():
         return None
 
 # ✅ FCM v1 방식 푸시 전송
-def send_push_v1(token, title, body):
+def send_push_notification(token, title, body):
     access_token = get_access_token()
     if not access_token:
         return None, {"error": "Access token 생성 실패"}
