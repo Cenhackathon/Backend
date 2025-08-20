@@ -44,4 +44,5 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('shelter/', include('shelter.urls')), # shelter 앱의 URL 포함
     path('accounts/', include('allauth.urls')),
+    path('traffic/', include('Traffic.urls')),
 ]
