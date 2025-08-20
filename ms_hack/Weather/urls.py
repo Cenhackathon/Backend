@@ -7,6 +7,7 @@ from .views import (
     ShelterWeatherAlertView,
     WeatherAlertTriggerView,
     CreateForecastWithOffsetView,
+    SaveFCMTokenView,
 )
 
 urlpatterns = [
@@ -16,5 +17,6 @@ urlpatterns = [
     path('alert/user/', UserWeatherAlertView.as_view(), name='weather-alert-user'),
     path('alert/shelter/', ShelterWeatherAlertView.as_view(), name='weather-alert-shelter'),
     path('alert/trigger/', WeatherAlertTriggerView.as_view(), name='weather-alert-trigger'),
+    path('api/save-fcm-token/', SaveFCMTokenView.as_view(), name='save-fcm-token'),
 ]
 
