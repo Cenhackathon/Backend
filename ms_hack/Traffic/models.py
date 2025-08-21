@@ -28,7 +28,7 @@ class LiveMapTraffic(models.Model):
 class TrafficCurrentInfo(models.Model):
     traffic = models.OneToOneField(
         LiveMapTraffic, 
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE,
         primary_key=True, 
         # null=True,       # 기존 row에 연결된 LiveMapTraffic이 없어도 허용
         # blank=True

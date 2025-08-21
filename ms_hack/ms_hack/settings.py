@@ -15,6 +15,9 @@ from decouple import config
 from datetime import timedelta
 import os
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
@@ -35,7 +38,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','15.164.132.161','openddm.store','www.openddm.store']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -196,3 +199,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TMAP_APP_KEY = config("TMAP_APP_KEY")
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
