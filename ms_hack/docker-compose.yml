@@ -1,18 +1,18 @@
 version: '3'
 services:
     web:
-        image: server
-        container_name: web
-        command: bash -c "gunicorn ms_hack.wsgi:application -b 0.0.0.0:8000" # 서버 실행
-        ports:
-            - '8000:8000'
-        restart: always
-        volumes:
-            - .:/app
-            - ./static:/app/static
-            - ./media:/app/media # media가 있으면
-        networks:
-            - server
+    build: .
+    container_name: server_web
+    command: bash -c "gunicorn ms_hack.wsgi:application -b 0.0.0.0:8000"
+    ports:
+        - '8000:8000'
+    restart: always
+    volumes:
+        - .:/app
+        - ./static:/app/static
+        - ./media:/app/media
+    networks:
+        - server
 
     nginx:
         image: nginx:latest
