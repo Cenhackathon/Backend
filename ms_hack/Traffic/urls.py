@@ -2,18 +2,18 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # LiveMapTraffic
-    path('live_map_traffic/', views.LiveMapTrafficList.as_view()),
-    path('live_map_traffic/<int:pk>/', views.LiveMapTrafficDetail.as_view()),
+    # 1️⃣ LiveMapTraffic (읽기 전용)
+    path('live_map_traffic/', views.LiveMapTrafficList.as_view(), name='live_map_traffic_list'),
+    path('live_map_traffic/<int:pk>/', views.LiveMapTrafficDetail.as_view(), name='live_map_traffic_detail'),
 
-    # TrafficCurrentInfo
-    path('traffic_current_info/', views.TrafficCurrentInfoList.as_view()),
-    path('traffic_current_info/<int:pk>/', views.TrafficCurrentInfoDetail.as_view()),
+    # 2️⃣ TrafficCurrentInfo (읽기 전용)
+    path('traffic_current_info/', views.TrafficCurrentInfoList.as_view(), name='traffic_current_info_list'),
+    path('traffic_current_info/<int:pk>/', views.TrafficCurrentInfoDetail.as_view(), name='traffic_current_info_detail'),
 
-    # TrafficFutureInfo
-    path('traffic_future_info/', views.TrafficFutureInfoList.as_view()),
-    path('traffic_future_info/<int:pk>/', views.TrafficFutureInfoDetail.as_view()),
+    # 3️⃣ TrafficFutureInfo (읽기 전용)
+    path('traffic_future_info/', views.TrafficFutureInfoList.as_view(), name='traffic_future_info_list'),
+    path('traffic_future_info/<int:pk>/', views.TrafficFutureInfoDetail.as_view(), name='traffic_future_info_detail'),
 
-    # 새로운 API: TMAP 데이터 가져오기 + 저장 + 예측
-    path('update_traffic/', views.UpdateTrafficData.as_view()),
+    # 4️⃣ TMAP 데이터 가져오기 + 예측 + 저장
+    path('update_traffic/', views.UpdateTrafficData.as_view(), name='update_traffic'),
 ]

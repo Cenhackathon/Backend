@@ -1,22 +1,31 @@
 # Traffic/serializers.py
 
 from rest_framework import serializers
-from .models import Live_Map_Traffic, Traffic_Current_Info, Traffic_Future_Info
+from .models import LiveMapTraffic, TrafficCurrentInfo, TrafficFutureInfo
 
-# 1. Live_Map_Traffic Serializer
+# 1. LiveMapTraffic Serializer (실시간 데이터)
 class LiveMapTrafficSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Live_Map_Traffic
-        fields = '__all__'
+    traffic_id = serializers.ReadOnlyField()
 
-# 2. Traffic_Current_Info Serializer
+    class Meta:
+        model = LiveMapTraffic
+        fields = ['traffic_id', 'road_name', 'congestion']
+
+
+# TrafficCurrentInfo: FK 연결된 traffic 정보 포함
 class TrafficCurrentInfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Traffic_Current_Info
-        fields = '__all__'
+    road_name = serializers.CharField(source='traffic.road_name', read_only=True)
+    congestion = serializers.IntegerField(source='traffic.congestion', read_only=True)
 
-# 3. Traffic_Future_Info Serializer
-class TrafficFutureInfoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Traffic_Future_Info
-        fields = '__all__'
+        model = TrafficCurrentInfo
+        fields = ['traffic', 'road_name', 'congestion', 'latitude', 'longitude', 'updated_at']
+
+# TrafficFutureInfo: FK 연결된 traffic 정보 포함
+class TrafficFutureInfoSerializer(serializers.ModelSerializer):
+    road_name = serializers.CharField(source='traffic.road_name', read_only=True)
+    original_congestion = serializers.IntegerField(source='traffic.congestion', read_only=True)
+
+    class Meta:
+        model = TrafficFutureInfo
+        fields = ['traffic', 'road_name', 'original_congestion', 'predicted_congestion', 'time_set']
