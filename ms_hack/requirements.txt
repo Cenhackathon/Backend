@@ -102,10 +102,8 @@ nbclient==0.10.2
 nbconvert==7.16.6
 nbformat==5.10.4
 nest-asyncio==1.6.0
-nodejs==0.1.1
 notebook==7.4.3
 notebook_shim==0.2.4
-npm==0.1.1
 numpy==2.3.0
 oauthlib==3.2.2
 openai==1.97.1
@@ -139,9 +137,6 @@ python-dateutil==2.9.0.post0
 python-decouple==3.8
 python-json-logger==3.3.0
 python3-openid==3.2.0
-pytz==2025.2
-pywin32==310
-pywinpty==2.0.15
 PyYAML==6.0.2
 pyzmq==26.4.0
 referencing==0.36.2
