@@ -1,9 +1,9 @@
 version: '3'
 services:
     web:
-        image: openddm
-        container_name: openddm_web
-        command: bash -c "gunicorn openddm.wsgi:application -b 0.0.0.0:8000" # 서버 실행
+        image: server
+        container_name: web
+        command: bash -c "gunicorn ms_hack.wsgi:application -b 0.0.0.0:8000" # 서버 실행
         ports:
             - '8000:8000'
         restart: always
@@ -21,13 +21,23 @@ services:
             - ./nginx.default.conf:/etc/nginx/conf.d/default.conf
             - ./static:/static
             - ./media:/media # media가 있으면
+            - ./cert/certbot/conf:/etc/letsencrypt
+            - ./cert/certbot/www:/var/www/certbot
         restart: unless-stopped
         ports:
             - '80:80'
+            - '443:443'
         depends_on:
             - web
         networks:
             - server
+    certbot:
+        image: certbot/certbot
+        container_name: certbot
+        restart: unless-stopped
+        volumes:
+            - ./cert/certbot/conf:/etc/letsencrypt
+            - ./cert/certbot/www:/var/www/certbot
 
 networks:
     server:
