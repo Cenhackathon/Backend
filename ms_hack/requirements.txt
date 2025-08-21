@@ -5,7 +5,7 @@ django-allauth==0.61.1
 djangorestframework-simplejwt==5.5.0
 
 # Firebase
-firebase-admin==6.14.0   # PyJWT 2.9.x와 호환
+firebase-admin==6.9.0   # PyJWT 2.9.x와 호환
 
 # JWT
 PyJWT==2.9.0
