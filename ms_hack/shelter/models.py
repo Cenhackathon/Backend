@@ -10,6 +10,7 @@ class HeatShelter(models.Model):
     lot_address = models.CharField(max_length=200)
     area = models.FloatField()
     capacity = models.IntegerField()
+    current_count = models.IntegerField(default=0)  # 🔹 현재 이용자 수
     note = models.TextField(blank=True, null=True)
     longitude = models.FloatField()
     latitude = models.FloatField()
