@@ -48,7 +48,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['127.0.0.1','15.164.132.161','openddm.store','www.openddm.store']
+ALLOWED_HOSTS = ['127.0.0.1','43.201.117.104','openddm.store','www.openddm.store']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -148,17 +148,24 @@ WSGI_APPLICATION = 'ms_hack.wsgi.application'
 
 import pymysql
 
+import pymysql
+from decouple import config
+
+# pymysql을 MySQLdb로 대체
 pymysql.install_as_MySQLdb()
+
+# DATABASES 설정
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'), # DB(스키마) 이름
-        'USER': config('DB_USER'), # 유저 이름 (root)
-        'PASSWORD': config('DB_PASSWORD'), # DB 비밀번호
-        'HOST': config('DB_HOST'), # DB 엔드포인트
-        'PORT': 3306,
+        'NAME': config('DB_NAME'),  # DB 이름
+        'USER': config('DB_USER'),  # DB 사용자
+        'PASSWORD': config('DB_PASSWORD'),  # DB 비밀번호
+        'HOST': config('DB_HOST'),  # DB 엔드포인트
+        'PORT': int(config('DB_PORT', default=3306)),  # 포트 (int로 변환)
     }
 }
+
 
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
