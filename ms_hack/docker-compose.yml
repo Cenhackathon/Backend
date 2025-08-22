@@ -22,7 +22,7 @@ services:
             - ./static:/static
             - ./media:/media
 
-        restart: unless-stopped
+        restart: always
         ports:
             - '80:80'
             - '443:443'
