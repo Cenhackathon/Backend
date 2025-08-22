@@ -5,17 +5,32 @@ from django.conf import settings
 from ..models import WeatherCurrentInfo, WeatherFutureInfo
 from ..utils.grid_converter import convert_to_grid
 from django.utils import timezone
+import ssl
+from requests.adapters import HTTPAdapter
 
 logger = logging.getLogger(__name__)
 
+# ----------------------------
+# TLSAdapter 정의
+# ----------------------------
+class TLSAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = ssl.create_default_context()
+        context.minimum_version = ssl.TLSVersion.TLSv1_2
+        kwargs['ssl_context'] = context
+        return super().init_poolmanager(*args, **kwargs)
+
+# ----------------------------
+# session 생성
+# ----------------------------
+session = requests.Session()
+session.mount("https://", TLSAdapter())
+
+# ----------------------------
 # 코드 매핑
-PTY_CODE = {
-    "0": "강수 없음", "1": "비", "2": "비/눈", "3": "눈",
-    "5": "빗방울", "6": "진눈깨비", "7": "눈날림"
-}
-SKY_CODE = {
-    "1": "맑음", "3": "구름많음", "4": "흐림"
-}
+# ----------------------------
+PTY_CODE = {"0": "강수 없음", "1": "비", "2": "비/눈", "3": "눈", "5": "빗방울", "6": "진눈깨비", "7": "눈날림"}
+SKY_CODE = {"1": "맑음", "3": "구름많음", "4": "흐림"}
 DEG_CODE = {
     0: "N", 22.5: "NNE", 45: "NE", 67.5: "ENE", 90: "E",
     112.5: "ESE", 135: "SE", 157.5: "SSE", 180: "S",
@@ -28,7 +43,9 @@ def deg_to_dir(deg):
     closest = min(DEG_CODE.keys(), key=lambda x: abs(x - deg))
     return DEG_CODE[closest]
 
+# ----------------------------
 # 발표 시각 계산
+# ----------------------------
 def get_latest_base_time_for_ultra():
     now = datetime.now()
     base_time = (now - timedelta(hours=1)).strftime("%H00")
@@ -37,7 +54,7 @@ def get_latest_base_time_for_ultra():
 
 def get_latest_base_time_for_vilage():
     now = datetime.now()
-    base_times = [2, 5, 8, 11, 14, 17, 20, 23]
+    base_times = [2,5,8,11,14,17,20,23]
     hour = now.hour
     base_hour = max([t for t in base_times if t <= hour], default=23)
     base_date = now.strftime("%Y%m%d")
@@ -46,7 +63,9 @@ def get_latest_base_time_for_vilage():
         base_hour = 23
     return base_date, f"{base_hour:02}00"
 
-# ✅ 초단기예보
+# ----------------------------
+# 초단기예보
+# ----------------------------
 def fetch_current_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
     if ny == 127: ny = 126
@@ -63,12 +82,10 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
         "nx": nx,
         "ny": ny
     }
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
-        response = requests.get(url, params=params, headers=headers, verify=True, timeout=10)
+        response = session.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
         items = response.json()['response']['body']['items']['item']
     except Exception as e:
@@ -80,7 +97,7 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
     target_time = None
 
     for item in items:
-        fcst_datetime = datetime.strptime(item['fcstDate'] + item['fcstTime'], "%Y%m%d%H%M")
+        fcst_datetime = datetime.strptime(item['fcstDate'] + item['fcstTime'], "%Y%m%d%H%M") 
         if abs((fcst_datetime - now).total_seconds()) <= 3600:
             target_time = fcst_datetime
             target_data[item['category']] = item['fcstValue']
@@ -104,7 +121,9 @@ def fetch_current_weather(lat, lon, location_name="사용자 위치"):
     )
     return True
 
-# ✅ 단기예보
+# ----------------------------
+# 단기예보
+# ----------------------------
 def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
     nx, ny = convert_to_grid(lat, lon)
     if ny == 127: ny = 126
@@ -121,12 +140,10 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
         "nx": nx,
         "ny": ny
     }
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     try:
-        response = requests.get(url, params=params, headers=headers, verify=True, timeout=10)
+        response = session.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
         items = response.json()["response"]["body"]["items"]["item"]
     except Exception as e:
@@ -162,7 +179,9 @@ def fetch_forecast_weather(lat, lon, location_name="사용자 위치"):
         )
     return True
 
-# ✅ 전체 업데이트 함수
+# ----------------------------
+# 전체 업데이트
+# ----------------------------
 def update_weather_data():
     lat, lon = 37.5744, 127.0396
     location_name = "동대문구"

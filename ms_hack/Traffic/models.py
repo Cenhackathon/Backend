@@ -48,9 +48,11 @@ class LiveMapTraffic(models.Model):
 # ==============================================
 class TrafficCurrentInfo(models.Model):
     traffic = models.OneToOneField(
+
         LiveMapTraffic,
         on_delete=models.CASCADE,
         primary_key=True
+
     )
 
     # 위치 정보: [경도, 위도] 배열로 저장

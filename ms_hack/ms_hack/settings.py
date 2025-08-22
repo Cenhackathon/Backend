@@ -15,6 +15,19 @@ from decouple import config
 from datetime import timedelta
 import os
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'www.openddm.store', 'openddm.store']
+CSRF_TRUSTED_ORIGINS = ['https://www.openddm.store', 'https://openddm.store']
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "https://www.openddm.store",
+    "https://openddm.store",
+]
+
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
@@ -35,7 +48,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','43.201.117.104','openddm.store','www.openddm.store']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -133,12 +146,26 @@ WSGI_APPLICATION = 'ms_hack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import pymysql
+
+import pymysql
+from decouple import config
+
+# pymysql을 MySQLdb로 대체
+pymysql.install_as_MySQLdb()
+
+# DATABASES 설정
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config('DB_NAME'),  # DB 이름
+        'USER': config('DB_USER'),  # DB 사용자
+        'PASSWORD': config('DB_PASSWORD'),  # DB 비밀번호
+        'HOST': config('DB_HOST'),  # DB 엔드포인트
+        'PORT': int(config('DB_PORT', default=3306)),  # 포트 (int로 변환)
     }
 }
+
 
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
@@ -196,3 +223,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TMAP_APP_KEY = config("TMAP_APP_KEY")
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass

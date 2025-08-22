@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from datetime import datetime, timedelta
-from .models import WeatherFutureInfo
+from .models import *
 from .serializers import WeatherFutureSerializer
 from .services.weather_api import fetch_current_weather, fetch_forecast_weather
 from .services.weather_alert import check_weather_alerts
@@ -10,12 +10,56 @@ from .services.shelter_alert import check_shelter_weather_risks
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework.permissions import IsAuthenticated
+from django.utils import timezone
+from django.db import IntegrityError
+from .services.firebase import send_push_notification
+
+class SaveFCMTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        token = request.data.get("fcm_token")
+
+        # 1️⃣ 토큰이 없으면 자동 발급
+        if not token:
+            token = self.generate_dummy_token(request.user)
+
+        # 2️⃣ DB 저장 (기존 토큰이 있으면 업데이트)
+        try:
+            obj, created = UserDeviceToken.objects.update_or_create(
+                user_id=request.user.id,
+                defaults={"fcm_token": token}
+            )
+        except Exception as e:
+            return Response({"error": f"DB 저장 실패: {str(e)}"}, status=500)
+
+        # 3️⃣ FCM 푸시 전송
+        status, result = send_push_notification(
+            token=token,
+            title="환영 메시지",
+            body="FCM 토큰이 정상적으로 저장되었습니다."
+        )
+
+        return Response({
+            "message": "FCM 토큰이 저장되었습니다.",
+            "fcm_token": token,
+            "created": created,
+            "push_status": status,
+            "push_result": result
+        }, status=200)
+
+    def generate_dummy_token(self, user):
+        """
+        테스트용 임시 토큰 자동 생성
+        실제 서비스에서는 클라이언트에서 발급 후 서버로 전달
+        """
+        return f"dummy_token_for_user_{user.id}"
 
 # 1. 날씨 예보 리스트 조회 (GET)
 class WeatherForecastView(generics.ListAPIView):
     serializer_class = WeatherFutureSerializer
 
-    def get_queryset(self):
+    def get_queryset(self): 
         location = self.request.query_params.get('location_name', '동대문구')
         return WeatherFutureInfo.objects.filter(location_name=location).order_by('time_set')
 
@@ -24,13 +68,13 @@ class CreateForecastWithOffsetView(generics.CreateAPIView):
     serializer_class = WeatherFutureSerializer
     queryset = WeatherFutureInfo.objects.all()
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs): 
         try:
             hour_offset = int(request.data.get("hour_offset", 0))
         except (ValueError, TypeError):
             return Response({"error": "hour_offset는 정수여야 합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
-        time_set = datetime.now() + timedelta(hours=hour_offset)
+        time_set = timezone.now() + timedelta(hours=hour_offset)
         serializer = self.get_serializer(data=request.data)
 
         if serializer.is_valid():

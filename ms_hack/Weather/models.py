@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 # 경고 알림 모델
 class AlertLog(models.Model):
@@ -38,7 +40,7 @@ class WeatherFutureInfo(models.Model):
     wind_speed = models.DecimalField(max_digits=4, decimal_places=1)
     uv_index = models.DecimalField(max_digits=3, decimal_places=1)
     weather_condition = models.CharField(max_length=50)
-    time_set = models.DateTimeField()  # 예측 시간 (프론트에서 hour_offset 기반으로 계산)
+    time_set = models.DateTimeField(default=timezone.now)  # 예측 시간 (프론트에서 hour_offset 기반으로 계산)
 
     def __str__(self):
         return f"{self.location_name} - {self.time_set.strftime('%Y-%m-%d %H:%M')}"
