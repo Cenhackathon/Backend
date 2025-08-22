@@ -3,7 +3,7 @@ services:
     web:
         image: server # ex) server
         container_name: web # ex) web
-        command: bash -c "gunicorn [django project폴더].wsgi:application -b 0.0.0.0:8000" # 서버 실행
+        command: bash -c "gunicorn ms_hack.wsgi:application -b 0.0.0.0:8000" # 서버 실행
         ports:
             - '8000:8000'
         restart: always
