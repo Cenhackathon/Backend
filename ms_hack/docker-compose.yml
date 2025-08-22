@@ -17,26 +17,14 @@ services:
         container_name: nginx
         volumes:
             - ./nginx.default.conf:/etc/nginx/conf.d/default.conf
-            - ./cert/certbot/conf:/etc/letsencrypt:ro
-            - ./cert/certbot/www:/var/www/certbot
-            - ./static:/static
-            - ./media:/media
 
         restart: always
         ports:
             - '80:80'
-            - '443:443'
         depends_on:
             - web
         networks:
             - server
-    certbot:
-        image: certbot/certbot
-        container_name: certbot
-        restart: unless-stopped
-        volumes:
-            - ./cert/certbot/conf:/etc/letsencrypt
-            - ./cert/certbot/www:/var/www/certbot
 
 networks:
     server:
