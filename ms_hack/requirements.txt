@@ -114,3 +114,4 @@ websocket-client==1.8.0
 websockets==15.0.1
 wheel==0.45.1
 wsproto==1.2.0
+pandas
