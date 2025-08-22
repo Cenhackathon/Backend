@@ -21,6 +21,7 @@ services:
             - ./nginx.default.conf:/etc/nginx/conf.d/default.conf
             - ./static:/static
             - ./media:/media # media가 있으면
+            - ./cert/certbot/www:/var/www/certbot
         restart: unless-stopped
         ports:
             - '80:80'
