@@ -27,7 +27,7 @@ services:
         #restart: always # 이 부분
         ports:
             - '80:80'
-            #- '443:443' # 이 부분
+            - '443:443' # 이 부분
         depends_on:
             - web
         networks:
@@ -36,12 +36,12 @@ services:
         # command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
     # 이 밑은 전부 다
-    # certbot:
-    #     image: certbot/certbot
-    #     restart: unless-stopped
-    #     volumes:
-    #         - ./cert/certbot/conf:/etc/letsencrypt
-    #         - ./cert/certbot/www:/var/www/certbot
+    certbot:
+        image: certbot/certbot
+        restart: unless-stopped
+        volumes:
+            - ./cert/certbot/conf:/etc/letsencrypt
+            - ./cert/certbot/www:/var/www/certbot
     # ↓ 인증서 자동 갱신
     # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
