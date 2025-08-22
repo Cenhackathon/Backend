@@ -1,5 +1,5 @@
 import csv
-from shelter.models import Shelter
+from shelter.models import HeatShelter
 
 def load_shelter_csv(path):
     for enc in ['utf-8', 'cp949', 'euc-kr']:
@@ -7,7 +7,7 @@ def load_shelter_csv(path):
             with open(path, newline='', encoding=enc) as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
-                    Shelter.objects.update_or_create(
+                    HeatShelter.objects.update_or_create(
                         name=row["시설명"],
                         defaults={
                             "latitude": float(row["위도"]),
