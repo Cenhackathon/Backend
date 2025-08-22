@@ -170,3 +170,6 @@ websockets==15.0.1
 wsproto==1.2.0
 google-auth==2.40.3
 google-auth-oauthlib==1.2.2
+#새로 추가(0821)
+joblib==1.5.1
+scikit-learn==1.5.2
