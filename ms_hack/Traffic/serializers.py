@@ -1,5 +1,3 @@
-# Traffic/serializers.py
-
 from rest_framework import serializers
 from .models import LiveMapTraffic, TrafficCurrentInfo, TrafficFutureInfo
 
@@ -9,23 +7,64 @@ class LiveMapTrafficSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LiveMapTraffic
-        fields = ['traffic_id', 'road_name', 'congestion']
+        fields = [
+            'traffic_id',
+            'name',                 
+            'startNodeName',        
+            'endNodeName',          
+            'congestion',           
+            'speed',
+            'distance',
+            'direction',
+            'roadType',
+            'coordinates',
+            'updateTime',
+            'isAccidentNode',
+            'accidentUpperCode',
+            'description'
+        ]
 
 
-# TrafficCurrentInfo: FK 연결된 traffic 정보 포함
+# 2. TrafficCurrentInfo Serializer
 class TrafficCurrentInfoSerializer(serializers.ModelSerializer):
-    road_name = serializers.CharField(source='traffic.road_name', read_only=True)
+    name = serializers.CharField(source='traffic.name', read_only=True)
+    startNodeName = serializers.CharField(source='traffic.startNodeName', read_only=True)
+    endNodeName = serializers.CharField(source='traffic.endNodeName', read_only=True)
     congestion = serializers.IntegerField(source='traffic.congestion', read_only=True)
+    coordinate = serializers.ListField(read_only=True)  # 수정됨: source 제거, 모델 필드 그대로 사용
+
+    # 돌발 정보
+    isAccidentNode = serializers.CharField(read_only=True)
+    accidentUpperCode = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True)
 
     class Meta:
         model = TrafficCurrentInfo
-        fields = ['traffic', 'road_name', 'congestion', 'latitude', 'longitude', 'updated_at']
+        fields = [
+            'traffic',
+            'name',
+            'startNodeName',
+            'endNodeName',
+            'congestion',
+            'coordinate',       # livemap 좌표 그대로
+            'updated_at',
+            'isAccidentNode',
+            'accidentUpperCode',
+            'description'
+        ]
 
-# TrafficFutureInfo: FK 연결된 traffic 정보 포함
+
+# 3. TrafficFutureInfo Serializer
 class TrafficFutureInfoSerializer(serializers.ModelSerializer):
-    road_name = serializers.CharField(source='traffic.road_name', read_only=True)
+    name = serializers.CharField(source='traffic.name', read_only=True)
     original_congestion = serializers.IntegerField(source='traffic.congestion', read_only=True)
-
+    
     class Meta:
         model = TrafficFutureInfo
-        fields = ['traffic', 'road_name', 'original_congestion', 'predicted_congestion', 'time_set']
+        fields = [
+            'traffic',
+            'name',
+            'original_congestion',
+            'predicted_congestion',
+            'time_set'
+        ]
