@@ -1,49 +1,19 @@
-version: '3'
+version: '3.8'
+
 services:
     web:
-        image: server # ex) server
-        container_name: web # ex) web
-        command: bash -c "gunicorn ms_hack.wsgi:application -b 0.0.0.0:8000" # 서버 실행
-        ports:
-            - '8000:8000'
-        restart: always
-        volumes:
-            - .:/app
-            - ./static:/app/static
-            #- ./media:/app/media # media가 있으면
-        networks:
-            - server
-
-    nginx:
         image: nginx:latest
-        container_name: nginx
+        container_name: web
         volumes:
-            - ./nginx.default.conf:/etc/nginx/conf.d/default.conf
-            - ./static:/static
-            #- ./media:/media # media가 있으면
-            #- ./cert/certbot/conf:/etc/letsencrypt # 이 부분
-            #- ./cert/certbot/www:/var/www/certbot # 이 부분
-
-        restart: unless-stopped # 이 부분
+            - ./cert/certbot/conf:/etc/letsencrypt
+            - ./cert/certbot/www:/var/www/certbot
+            - ./nginx/conf.d:/etc/nginx/conf.d
         ports:
             - '80:80'
-            #- '443:443' # 이 부분
-        depends_on:
-            - web
-        networks:
-            - server
-        # ↓ 인증서 자동 갱신
-        # command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
 
-    # 이 밑은 전부 다
-    # certbot:
-    #     image: certbot/certbot
-    #     restart: unless-stopped
-    #     volumes:
-    #         - ./cert/certbot/conf:/etc/letsencrypt
-    #         - ./cert/certbot/www:/var/www/certbot
-    #     # ↓ 인증서 자동 갱신
-    #     # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-networks:
-    server:
+    certbot:
+        image: certbot/certbot
+        container_name: certbot
+        volumes:
+            - ./cert/certbot/conf:/etc/letsencrypt
+            - ./cert/certbot/www:/var/www/certbot
