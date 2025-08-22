@@ -18,6 +18,16 @@ import os
 import pymysql
 pymysql.install_as_MySQLdb()
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'www.openddm.store', 'openddm.store']
+CSRF_TRUSTED_ORIGINS = ['https://www.openddm.store', 'https://openddm.store']
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "https://www.openddm.store",
+    "https://openddm.store",
+]
+
 KMA_API_KEY = config("KMA_API_KEY")
 GOOGLE_APPLICATION_CREDENTIALS = config("GOOGLE_APPLICATION_CREDENTIALS")
 
