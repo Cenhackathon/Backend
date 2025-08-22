@@ -14,22 +14,21 @@ MODEL_PATH = "traffic_model.pkl"
 # ==========================
 def load_dataset():
     qs = LiveMapTraffic.objects.all().values(
-        "road_name", "congestion", "speed", "distance", "update_time"
+        "name", "congestion", "speed", "distance", "updateTime"
     )
     df = pd.DataFrame(list(qs))
     if df.empty:
         return None
-    
-    # Feature Engineering
-    df["hour"] = df["update_time"].dt.hour
-    df["day_of_week"] = df["update_time"].dt.dayofweek
 
-    # Target (예측할 값: congestion)
+    # Feature Engineering
+    df["hour"] = df["updateTime"].dt.hour
+    df["day_of_week"] = df["updateTime"].dt.dayofweek
+
+    # Features & Target
     X = df[["speed", "distance", "hour", "day_of_week"]]
     y = df["congestion"]
 
     return X, y
-
 
 # ==========================
 # 2. 모델 학습
@@ -37,9 +36,9 @@ def load_dataset():
 def train_model():
     dataset = load_dataset()
     if dataset is None:
-        print("데이터가 부족합니다. 학습 불가.")
+        print("데이터 부족 → 학습 불가")
         return None
-    
+
     X, y = dataset
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -49,25 +48,23 @@ def train_model():
     acc = model.score(X_test, y_test)
     print(f"✅ 모델 학습 완료 - 정확도: {acc:.2f}")
 
-    # 모델 저장
     joblib.dump(model, MODEL_PATH)
     return model
-
 
 # ==========================
 # 3. 예측 함수
 # ==========================
-def predict_congestion(road_name, congestion, speed=30, distance=1000):
+def predict_congestion(road_name=None, congestion=None, speed=30, distance=1000):
     """
     새로운 교통 데이터를 기반으로 혼잡도 예측
-    - road_name은 현재는 feature로 안 쓰지만, 확장 가능
-    - congestion (현재 혼잡도), speed, distance 기반 예측
+    - 현재는 speed, distance, 시간, 요일 기반
+    - 반환값: 0~4 혼잡도
     """
     if not os.path.exists(MODEL_PATH):
-        print("⚠ 모델 없음 → 새로 학습 시작")
+        print("⚠ 모델 없음 → 새로 학습")
         model = train_model()
         if model is None:
-            return "low"
+            return 0  # 기본값: 낮음
     else:
         model = joblib.load(MODEL_PATH)
 
@@ -81,5 +78,5 @@ def predict_congestion(road_name, congestion, speed=30, distance=1000):
 
     pred = model.predict(features)[0]
 
-    mapping = {0: "low", 1: "low", 2: "medium", 3: "high", 4: "high"}
-    return mapping.get(pred, "low")
+    # RandomForest output 그대로 0~4로 반환
+    return int(pred)
