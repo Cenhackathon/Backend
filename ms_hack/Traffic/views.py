@@ -1,4 +1,5 @@
-
+from django.utils import timezone
+from datetime import timedelta
 # Traffic/views.py
 
 from rest_framework import generics, status
