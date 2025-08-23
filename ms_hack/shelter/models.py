@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class HeatShelter(models.Model):
-    index = models.IntegerField()
+    index = models.IntegerField(unique=True)
     category1 = models.CharField(max_length=50)
     category2 = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
