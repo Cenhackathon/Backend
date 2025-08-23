@@ -82,8 +82,10 @@ INSTALLED_APPS = [
     'django_crontab',
     'shelter',
     'google',
+    'User',
 ]
 
+AUTH_USER_MODEL = 'User.User'  # 커스텀 유저 모델을 사용합니다.
 
 
 REST_FRAMEWORK = {
