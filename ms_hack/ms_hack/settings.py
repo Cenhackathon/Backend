@@ -18,6 +18,7 @@ import os
 import pymysql
 pymysql.install_as_MySQLdb()
 
+
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'www.openddm.store', 'openddm.store']
 CSRF_TRUSTED_ORIGINS = ['https://www.openddm.store', 'https://openddm.store']
 

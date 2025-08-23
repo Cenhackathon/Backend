@@ -29,11 +29,11 @@ class UploadShelterCSVView(View):
         if not csv_file:
             return JsonResponse({'error': '파일이 업로드되지 않았습니다.'}, status=400)
 
-        # 인코딩 자동 탐색
-        for enc in ['utf-8', 'cp949', 'euc-kr']:
+        # 파일 내용을 바이트로 읽고 인코딩 시도
+        raw_bytes = csv_file.read()
+        for enc in ['utf-8-sig', 'utf-8', 'cp949', 'euc-kr']:
             try:
-                csv_file.seek(0)
-                decoded_file = io.TextIOWrapper(csv_file, encoding=enc)
+                decoded_file = io.StringIO(raw_bytes.decode(enc))
                 reader = csv.DictReader(decoded_file)
                 break
             except UnicodeDecodeError:
@@ -47,7 +47,7 @@ class UploadShelterCSVView(View):
                 row = {k.strip(): v.strip() for k, v in row.items() if k}
 
                 HeatShelter.objects.update_or_create(
-                    index=safe_int(row.get('시설코드')),
+                    index=safe_int(row.get('계')),  # ✅ CSV 헤더와 정확히 일치
                     defaults={
                         'category1': row.get('시설구분1', ''),
                         'category2': row.get('시설구분2', ''),
@@ -59,10 +59,11 @@ class UploadShelterCSVView(View):
                         'note': row.get('비고', ''),
                         'longitude': safe_float(row.get('경도')),
                         'latitude': safe_float(row.get('위도')),
-                        'x_coord': safe_float(row.get('X좌표')),
-                        'y_coord': safe_float(row.get('Y좌표')),
+                        'x_coord': safe_float(row.get('X좌표(EPSG:5186)')),
+                        'y_coord': safe_float(row.get('Y좌표(EPSG:5186)')),
                     }
                 )
+
                 print(f"✅ 쉼터 저장: {row.get('쉼터명칭', '')}")
 
         return JsonResponse({'message': '쉼터 정보가 저장되었습니다.'})
