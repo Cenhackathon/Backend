@@ -1,17 +1,16 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from datetime import datetime, timedelta
-from .models import *
+from datetime import timedelta
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.permissions import IsAuthenticated
+from .models import UserDeviceToken, WeatherFutureInfo
 from .serializers import WeatherFutureSerializer
 from .services.weather_api import fetch_current_weather, fetch_forecast_weather
 from .services.weather_alert import check_weather_alerts
 from .services.shelter_alert import check_shelter_weather_risks
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from rest_framework.permissions import IsAuthenticated
-from django.utils import timezone
-from django.db import IntegrityError
 from .services.firebase import send_push_notification
 
 class SaveFCMTokenView(APIView):
@@ -19,12 +18,9 @@ class SaveFCMTokenView(APIView):
 
     def post(self, request):
         token = request.data.get("fcm_token")
-
-        # 1️⃣ 토큰이 없으면 자동 발급
         if not token:
             token = self.generate_dummy_token(request.user)
 
-        # 2️⃣ DB 저장 (기존 토큰이 있으면 업데이트)
         try:
             obj, created = UserDeviceToken.objects.update_or_create(
                 user_id=request.user.id,
@@ -33,8 +29,7 @@ class SaveFCMTokenView(APIView):
         except Exception as e:
             return Response({"error": f"DB 저장 실패: {str(e)}"}, status=500)
 
-        # 3️⃣ FCM 푸시 전송
-        status, result = send_push_notification(
+        status_code, result = send_push_notification(
             token=token,
             title="환영 메시지",
             body="FCM 토큰이 정상적으로 저장되었습니다."
@@ -44,31 +39,26 @@ class SaveFCMTokenView(APIView):
             "message": "FCM 토큰이 저장되었습니다.",
             "fcm_token": token,
             "created": created,
-            "push_status": status,
+            "push_status": status_code,
             "push_result": result
         }, status=200)
 
     def generate_dummy_token(self, user):
-        """
-        테스트용 임시 토큰 자동 생성
-        실제 서비스에서는 클라이언트에서 발급 후 서버로 전달
-        """
+        """ 테스트용 임시 토큰 생성 """
         return f"dummy_token_for_user_{user.id}"
 
-# 1. 날씨 예보 리스트 조회 (GET)
 class WeatherForecastView(generics.ListAPIView):
     serializer_class = WeatherFutureSerializer
 
-    def get_queryset(self): 
+    def get_queryset(self):
         location = self.request.query_params.get('location_name', '동대문구')
         return WeatherFutureInfo.objects.filter(location_name=location).order_by('time_set')
 
-# 2. 시간 오프셋 기반 예보 생성 (POST)
 class CreateForecastWithOffsetView(generics.CreateAPIView):
     serializer_class = WeatherFutureSerializer
     queryset = WeatherFutureInfo.objects.all()
 
-    def create(self, request, *args, **kwargs): 
+    def create(self, request, *args, **kwargs):
         try:
             hour_offset = int(request.data.get("hour_offset", 0))
         except (ValueError, TypeError):
@@ -76,15 +66,11 @@ class CreateForecastWithOffsetView(generics.CreateAPIView):
 
         time_set = timezone.now() + timedelta(hours=hour_offset)
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
             serializer.save(time_set=time_set)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# 3. 날씨 정보 업데이트 (기상청 API 호출)
 @method_decorator(csrf_exempt, name='dispatch')
 class WeatherUpdateView(APIView):
     def post(self, request):
@@ -93,10 +79,7 @@ class WeatherUpdateView(APIView):
             lon = float(request.data.get("longitude", 127.0396))
             location_name = request.data.get("location_name", "동대문구")
 
-            # 현재 날씨 저장
             current_result = fetch_current_weather(lat, lon, location_name)
-
-            # 미래 예보 저장
             forecast_result = fetch_forecast_weather(lat, lon, location_name)
 
             if current_result is False and forecast_result is False:
@@ -111,19 +94,18 @@ class WeatherUpdateView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-# 4. 사용자 기반 위험 요소 확인 및 FCM 알림 전송
+
 class UserWeatherAlertView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request):
         try:
-            user_id = request.user.id  # 로그인된 사용자 ID
+            user_id = request.user.id
             check_weather_alerts(user_id=user_id)
             return Response({"message": "사용자 기반 위험 분석 및 알림 완료"})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# 5. 쉼터 기반 위험 요소 분석 결과 반환
 class ShelterWeatherAlertView(APIView):
     def post(self, request):
         try:
@@ -131,8 +113,7 @@ class ShelterWeatherAlertView(APIView):
             return Response({"alerts": alerts})
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-# 6. 날씨 알림 트리거용 테스트 뷰
+
 class WeatherAlertTriggerView(APIView):
     def post(self, request):
         try:
