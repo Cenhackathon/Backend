@@ -16,6 +16,7 @@ class WeatherCurrentSerializer(serializers.ModelSerializer):
             "weather_condition",
             "updated_at"
         ]
+        read_only_fields = ("weather_id", "updated_at")
 
 class WeatherFutureSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,3 +33,4 @@ class WeatherFutureSerializer(serializers.ModelSerializer):
             "weather_condition",
             "time_set"
         ]
+        read_only_fields = ("weather_id",)
