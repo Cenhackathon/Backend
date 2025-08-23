@@ -14,6 +14,13 @@ from .models import Post
 
 # Create your views here.
 
+class DefaultPageView(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        return self.queryset.order_by('-created_at')
+
 class PostUploadView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()

@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+    path('', DefaultPageView.as_view(), name='default-page'),
     path('upload/', PostUploadView.as_view(), name='post-upload'),
     path('list/<str:order_by>/', PostListView.as_view(), name='post-list-order'),
     path('list/<str:order_by>/<str:category>/', PostListView.as_view(), name='post-list'),
