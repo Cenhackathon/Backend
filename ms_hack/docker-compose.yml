@@ -11,8 +11,8 @@ services:
         env_file:
             - .env
 
-        depends_on:
-            - db
+        #depends_on:
+        #    - db
 
         volumes:
             - .:/app
