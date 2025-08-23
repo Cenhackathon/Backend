@@ -7,10 +7,18 @@ services:
         ports:
             - '8000:8000'
         restart: always
+
+        env_file:
+            - .env
+
+        depends_on:
+            - ddmdb
+
         volumes:
             - .:/app
             - ./static:/app/static
             - ./media:/app/media # media가 있으면
+            - /home/ubuntu/openddm/secrets/firebase-key.json:/app/firebase-key.json
         networks:
             - server
 
