@@ -40,33 +40,54 @@ class LiveMapTrafficDetail(generics.RetrieveAPIView):
 # -------------------
 # 2️⃣ TrafficCurrentInfo (읽기 전용)
 class TrafficCurrentInfoList(generics.ListAPIView):
-    queryset = TrafficCurrentInfo.objects.all()
     serializer_class = TrafficCurrentInfoSerializer
     permission_classes = [AllowAny]
 
-    # def get_queryset(self):
-    #     queryset = TrafficCurrentInfo.objects.all()
-    #     accident = self.request.query_params.get('accident')
-    #     if accident in ['Y', 'N']:
-    #         queryset = queryset.filter(isAccidentNode=accident)
-    #     return queryset
+    def get_queryset(self):
+        try:
+            return TrafficCurrentInfo.objects.select_related('traffic').all()
+        except Exception as e:
+            # 로그 출력 가능
+            print("Error fetching TrafficCurrentInfo:", e)
+            return TrafficCurrentInfo.objects.none()
+
 
 class TrafficCurrentInfoDetail(generics.RetrieveAPIView):
-    queryset = TrafficCurrentInfo.objects.all()
     serializer_class = TrafficCurrentInfoSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        try:
+            return TrafficCurrentInfo.objects.select_related('traffic').all()
+        except Exception as e:
+            print("Error fetching TrafficCurrentInfo detail:", e)
+            return TrafficCurrentInfo.objects.none()
+
 
 # -------------------
 # 3️⃣ TrafficFutureInfo (읽기 전용)
 class TrafficFutureInfoList(generics.ListAPIView):
-    queryset = TrafficFutureInfo.objects.all()
     serializer_class = TrafficFutureInfoSerializer
     permission_classes = [AllowAny]
 
+    def get_queryset(self):
+        try:
+            return TrafficFutureInfo.objects.select_related('traffic').all()
+        except Exception as e:
+            print("Error fetching TrafficFutureInfo:", e)
+            return TrafficFutureInfo.objects.none()
+
+
 class TrafficFutureInfoDetail(generics.RetrieveAPIView):
-    queryset = TrafficFutureInfo.objects.all()
     serializer_class = TrafficFutureInfoSerializer
     permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        try:
+            return TrafficFutureInfo.objects.select_related('traffic').all()
+        except Exception as e:
+            print("Error fetching TrafficFutureInfo detail:", e)
+            return TrafficFutureInfo.objects.none()
 
 # -------------------
 # 4️⃣ TMAP 데이터 가져오기 + 예측 + DB 저장
