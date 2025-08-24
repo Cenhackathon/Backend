@@ -25,7 +25,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
 
 # Comment serializer for read-only comments in PostDetail
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.ReadOnlyField(source='author.username') # Display username
+    author = serializers.ReadOnlyField(source='author.username')  # Display username
 
     class Meta:
         model = Comment

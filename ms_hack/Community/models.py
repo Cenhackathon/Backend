@@ -30,9 +30,24 @@ class Post(models.Model):
 # 댓글 모델
 class Comment (models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')  # FK: 게시글
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # 작성자
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Comment by {self.id} on {self.post}"
+
+
+# 새로 추가할 좋아요 관계 모델
+class Like(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # 한 사용자가 한 게시글에 좋아요를 두 번 누를 수 없도록 제약 조건 추가
+        unique_together = ('user', 'post')
+        
+    def __str__(self):
+        return f'{self.user.username} liked {self.post.post_id}'

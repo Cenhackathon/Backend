@@ -105,10 +105,25 @@ class CommentCreateView(generics.CreateAPIView):
         post = Post.objects.get(post_id=post_id)
         serializer.save(post=post)
 
-class LikeIncrementView(APIView):
+class LikeToggleView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, post_id):
         post = get_object_or_404(Post, post_id=post_id)
-        post.likes = (post.likes or 0) + 1  # likes 필드 값이 None이면 0부터 시작
+        user = request.user
+
+        like_obj, created = Like.objects.get_or_create(user=user, post=post)
+
+        if created:
+            post.likes += 1
+        else:
+            like_obj.delete()  # 좋아요 객체를 삭제합니다.
+            post.likes = max(0, post.likes - 1)  # 좋아요 갯수가 음수가 되지 않도록 방지합니다.
+
+        # 4. 변경된 좋아요 갯수를 데이터베이스에 저장합니다.
         post.save(update_fields=['likes'])
-        return Response({"likes": post.likes}, status=status.HTTP_200_OK)
+
+        # 5. 변경된 좋아요 갯수와 상태를 담아 응답을 반환합니다.
+        return Response({
+            "likes": post.likes,
+        }, status=status.HTTP_200_OK)
