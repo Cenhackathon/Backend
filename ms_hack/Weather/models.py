@@ -10,6 +10,8 @@ class AlertLog(models.Model):
     alert_type = models.CharField(max_length=50, null=True, blank=True)
     alert_message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    send_status = models.BooleanField(default=False)  # 성공 여부
+    send_time = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Alert {self.alert_id} - {self.location_name}"
@@ -48,7 +50,10 @@ class WeatherFutureInfo(models.Model):
         return f"{self.location_name} - {self.time_set.strftime('%Y-%m-%d %H:%M')}"
 
 # 사용자 디바이스 토큰 (FCM 등) 
-class UserDeviceToken(models.Model): 
-    user_id = models.IntegerField() 
-    fcm_token = models.CharField(max_length=255) 
-    def __str__(self): return f"User {self.user_id} - Token"
+class UserDeviceToken(models.Model):
+    user_id = models.IntegerField()
+    fcm_token = models.CharField(max_length=255)
+    updated_at = models.DateTimeField(auto_now=True)  # ✅ 추가
+
+    def __str__(self):
+        return f"User {self.user_id} - Token"
