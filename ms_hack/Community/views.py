@@ -95,15 +95,24 @@ class PostUpdateView(generics.UpdateAPIView):
     lookup_field = 'post_id'
     lookup_url_kwarg = 'post_id'
 
+class CommentListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_id')
+        return Comment.objects.filter(post__post_id=post_id)
+
 class CommentCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Comment.objects.all()
-    serializer_class = CommentCreateSerializer
+    serializer_class = CommentCreateSerializer 
 
     def perform_create(self, serializer):
         post_id = self.kwargs.get('post_id')
-        post = Post.objects.get(post_id=post_id)
-        serializer.save(post=post)
+        post = get_object_or_404(Post, id=post_id)
+
+        serializer.save(post=post, author=self.request.user)
 
 class LikeToggleView(APIView):
     permission_classes = [IsAuthenticated]

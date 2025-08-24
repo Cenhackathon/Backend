@@ -32,21 +32,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'author', 'content', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-# Comment serializer for creating comments
-class CommentCreateSerializer(serializers.ModelSerializer):
-    author = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
 
+class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['post', 'content', 'author']
-        read_only_fields = ['post']
+        fields = ['content']
 
-    def create(self, validated_data):
-        validated_data['author'] = self.context['request'].user
-        return Comment.objects.create(**validated_data)
 
 # Post serializer for listing posts
 class PostListSerializer(serializers.ModelSerializer):
