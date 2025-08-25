@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from datetime import timedelta
+from rest_framework.pagination import PageNumberPagination
 
 from .models import LiveMapTraffic, TrafficCurrentInfo, TrafficFutureInfo
 from .serializers import (
@@ -18,12 +19,19 @@ from .serializers import (
 from .services.tmap_service import fetch_realtime_traffic
 from .services.traffic_prediction import predict_congestion
 
+class CustomPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
 # -------------------
 # 1️⃣ LiveMapTraffic (읽기 전용)
 class LiveMapTrafficList(generics.ListAPIView):
     queryset = LiveMapTraffic.objects.all()
     serializer_class = LiveMapTrafficSerializer
     permission_classes = [AllowAny]
+
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -42,6 +50,8 @@ class LiveMapTrafficDetail(generics.RetrieveAPIView):
 class TrafficCurrentInfoList(generics.ListAPIView):
     serializer_class = TrafficCurrentInfoSerializer
     permission_classes = [AllowAny]
+
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         try:
@@ -69,6 +79,8 @@ class TrafficCurrentInfoDetail(generics.RetrieveAPIView):
 class TrafficFutureInfoList(generics.ListAPIView):
     serializer_class = TrafficFutureInfoSerializer
     permission_classes = [AllowAny]
+
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
         try:
